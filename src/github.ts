@@ -733,7 +733,7 @@ export class GitHub {
     return changes;
   }
 
-  private async getDefaultBranch(owner: string, repo: string): Promise<string> {
+  async getDefaultBranch(owner: string, repo: string): Promise<string> {
     if (this.defaultBranch) {
       return this.defaultBranch;
     }
@@ -766,7 +766,7 @@ export class GitHub {
     path: string,
     defaultBranch: string | undefined
   ): Promise<GitHubFileContents> {
-    const options: any = {
+    const options: {owner: string; repo: string; path: string; ref?: string} = {
       owner: this.owner,
       repo: this.repo,
       path,
@@ -803,7 +803,7 @@ export class GitHub {
     );
 
     const blobDescriptor = repoTree.data.tree.find(
-      (tree: any) => tree.path === path
+      (tree: {path: string}) => tree.path === path
     );
 
     const resp = await this.request(
