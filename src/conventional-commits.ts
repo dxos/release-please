@@ -38,6 +38,7 @@ interface ConventionalCommitsOptions {
   githubRepoUrl: string;
   host?: string;
   bumpMinorPreMajor?: boolean;
+  bumpMinorOnBreaking?: boolean;
   // allow for customized commit template.
   commitPartial?: string;
   headerPartial?: string;
@@ -106,6 +107,7 @@ export class ConventionalCommits {
   owner: string;
   repository: string;
   bumpMinorPreMajor?: boolean;
+  bumpMinorOnBreaking?: boolean;
 
   // allow for customized commit template.
   commitPartial?: string;
@@ -119,6 +121,7 @@ export class ConventionalCommits {
     const [owner, repository] = parsedGithubRepoUrl;
     this.commits = options.commits;
     this.bumpMinorPreMajor = options.bumpMinorPreMajor || false;
+    this.bumpMinorOnBreaking = options.bumpMinorOnBreaking || false;
     this.host = options.host || 'https://www.github.com';
     this.owner = owner;
     this.repository = repository;
@@ -206,7 +209,11 @@ export class ConventionalCommits {
             );
 
             if (result && result.level !== null) {
-              result.releaseType = VERSIONS[result.level];
+              // Demote everything one level with bumpMinorOnBreaking.
+              const level = this.bumpMinorOnBreaking ?
+                Math.min(result.level + 1, 2) :
+                result.level;
+              result.releaseType = VERSIONS[level];
             } else if (result === null) {
               result = {};
             }
@@ -215,7 +222,8 @@ export class ConventionalCommits {
             // the minor should be bumped when features are introduced for pre 1.x.x libs:
             if (
               result.reason.indexOf(' 0 features') === -1 &&
-              result.releaseType === 'patch'
+              result.releaseType === 'patch' &&
+              !this.bumpMinorOnBreaking
             ) {
               result.releaseType = 'minor';
             }

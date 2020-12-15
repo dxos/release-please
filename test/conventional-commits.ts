@@ -45,6 +45,45 @@ describe('ConventionalCommits', () => {
     });
   });
 
+  it('suggests minor release for breaking change post 1.0 with bumpMinorOnBreaking', async () => {
+    const cc = new ConventionalCommits({
+      commits: [
+        {
+          message: 'fix: addressed issues with foo',
+          sha: 'abc123',
+          files: [],
+        },
+        {message: 'feat!: awesome feature', sha: 'abc678', files: []},
+      ],
+      githubRepoUrl: 'https://github.com/bcoe/release-please.git',
+      bumpMinorPreMajor: true,
+      bumpMinorOnBreaking: true,
+    });
+    const bump = await cc.suggestBump('1.3.0');
+    expect(bump.releaseType).to.equal('minor');
+    expect(bump.reason).to.equal('There is 1 BREAKING CHANGE and 0 features');
+  });
+
+  it('suggests patch release for feature change post 1.0 with bumpMinorOnBreaking', async () => {
+    const cc = new ConventionalCommits({
+      commits: [
+        {
+          message: 'fix: addressed issues with foo',
+          sha: 'abc123',
+          files: [],
+        },
+        {message: 'feat: awesome feature', sha: 'abc678', files: []},
+      ],
+      githubRepoUrl: 'https://github.com/bcoe/release-please.git',
+      bumpMinorPreMajor: true,
+      bumpMinorOnBreaking: true,
+    });
+    const bump = await cc.suggestBump('1.3.0');
+    expect(bump.releaseType).to.equal('patch');
+    expect(bump.reason).to.equal('There are 0 BREAKING CHANGES and 1 features');
+  });
+
+
   describe('generateChangelogEntry', () => {
     // See: https://github.com/googleapis/nodejs-logging/commit/ce29b498ebb357403c093053d1b9989f1a56f5af
     it('does not include content two newlines after BREAKING CHANGE', async () => {

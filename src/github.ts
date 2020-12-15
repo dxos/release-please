@@ -499,7 +499,7 @@ export class GitHub {
         labels.length === 0 ||
         this.hasAllLabels(
           labels,
-          pull.labels.map(l => l.name)
+          pull.labels.map(l => l.name || '')
         )
       ) {
         // it's expected that a release PR will have a

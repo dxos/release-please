@@ -41,6 +41,7 @@ export class Node extends ReleasePR {
       commits,
       githubRepoUrl: this.repoUrl,
       bumpMinorPreMajor: this.bumpMinorPreMajor,
+      bumpMinorOnBreaking: this.bumpMinorOnBreaking,
       changelogSections: this.changelogSections,
     });
     const candidate: ReleaseCandidate = await this.coerceReleaseCandidate(
